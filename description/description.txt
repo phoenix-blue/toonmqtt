@@ -1,0 +1,1 @@
+Lokale MQTT-koppeling voor Toon 2 met Home Assistant climate/discovery, beschikbare klimaat- en OpenTherm-sensoren, MQTT-bediening en injectie van kWh- en gasmeterstanden als normale Toon-meterdata. Volledig instelbaar vanaf de tegel; Domoticz, openHAB en andere systemen kunnen de standaardtopics gebruiken.

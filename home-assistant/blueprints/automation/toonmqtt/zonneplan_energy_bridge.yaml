@@ -1,0 +1,203 @@
+blueprint:
+  name: Toon MQTT - Zonneplan energiebrug
+  description: >-
+    Stuurt actueel nettovermogen en cumulatieve elektriciteits- en gastotalen
+    vanuit Home Assistant naar Toon MQTT. Dagelijks resetende Zonneplan-sensoren
+    worden via Recorder-langetermijnstatistieken omgezet naar blijvend oplopende
+    totalen. Positief nettovermogen is verbruik; negatief nettovermogen is
+    teruglevering.
+  domain: automation
+  author: Toon MQTT contributors
+  homeassistant:
+    min_version: 2025.6.0
+  input:
+    mqtt:
+      name: MQTT
+      icon: mdi:mqtt
+      input:
+        base_topic:
+          name: Toon MQTT-basistopic
+          description: Hetzelfde basistopic als op de Toon-tegel.
+          default: toon/voorbeeld
+          selector:
+            text:
+    sources:
+      name: Zonneplan-bronnen
+      icon: mdi:solar-power
+      input:
+        live_power_sensor:
+          name: Actueel nettovermogen
+          description: Positief is afname; negatief is teruglevering.
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: power
+        import_energy_sensor:
+          name: Elektriciteitsverbruik
+          description: Een kWh-sensor die dagelijks mag resetten.
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: energy
+        export_energy_sensor:
+          name: Elektriciteitsteruglevering
+          description: Een kWh-sensor die dagelijks mag resetten.
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: energy
+        gas_energy_sensor:
+          name: Gasverbruik
+          description: Een m³-sensor die dagelijks mag resetten.
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: gas
+    advanced:
+      name: Geavanceerd
+      icon: mdi:cog
+      collapsed: true
+      input:
+        statistics_start:
+          name: Begin langetermijnstatistieken
+          description: >-
+            Kies een datum van vóór de eerste metingen. Alleen de opgelopen som
+            telt; dit is geen datum waarop Toon terugwerkende historie importeert.
+          default: "2020-01-01 00:00:00"
+          selector:
+            text:
+
+mode: queued
+max: 3
+max_exceeded: silent
+
+triggers:
+  - trigger: state
+    entity_id: !input live_power_sensor
+    id: live_power
+
+  - trigger: time_pattern
+    minutes: "/5"
+    id: totals
+
+  - trigger: homeassistant
+    event: start
+    id: startup
+
+variables:
+  toon_base_topic: !input base_topic
+  toon_live_power_sensor: !input live_power_sensor
+  toon_import_energy_sensor: !input import_energy_sensor
+  toon_export_energy_sensor: !input export_energy_sensor
+  toon_gas_energy_sensor: !input gas_energy_sensor
+  toon_statistics_start: !input statistics_start
+
+actions:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id == 'live_power' }}"
+        sequence:
+          - condition: template
+            value_template: "{{ is_number(states(toon_live_power_sensor)) }}"
+          - variables:
+              toon_net_power: "{{ states(toon_live_power_sensor) | float(0) }}"
+          - action: mqtt.publish
+            data:
+              topic: "{{ toon_base_topic }}/inject/state"
+              payload: >-
+                {{
+                  {
+                    "power_w": ([toon_net_power, 0] | max) | round(0),
+                    "production_w": ([0 - toon_net_power, 0] | max) | round(0)
+                  } | tojson
+                }}
+              qos: 0
+              retain: false
+
+    default:
+      - if:
+          - condition: template
+            value_template: "{{ trigger.id == 'startup' }}"
+        then:
+          - delay: "00:00:30"
+
+      - action: recorder.get_statistics
+        data:
+          statistic_ids:
+            - !input import_energy_sensor
+            - !input export_energy_sensor
+            - !input gas_energy_sensor
+          start_time: "{{ toon_statistics_start }}"
+          period: year
+          types:
+            - sum
+          units:
+            energy: kWh
+            gas: m³
+        response_variable: toon_recorder_response
+
+      - variables:
+          toon_import_rows: >-
+            {{
+              toon_recorder_response.get("statistics", {})
+              .get(toon_import_energy_sensor, [])
+            }}
+          toon_export_rows: >-
+            {{
+              toon_recorder_response.get("statistics", {})
+              .get(toon_export_energy_sensor, [])
+            }}
+          toon_gas_rows: >-
+            {{
+              toon_recorder_response.get("statistics", {})
+              .get(toon_gas_energy_sensor, [])
+            }}
+          toon_net_power: >-
+            {{
+              states(toon_live_power_sensor) | float(0)
+              if is_number(states(toon_live_power_sensor))
+              else 0
+            }}
+
+      - condition: template
+        value_template: >-
+          {{
+            toon_import_rows | count > 0
+            or toon_export_rows | count > 0
+            or toon_gas_rows | count > 0
+          }}
+
+      - action: mqtt.publish
+        data:
+          topic: "{{ toon_base_topic }}/inject/state"
+          payload: >-
+            {% set ns = namespace(values={
+              "power_w": ([toon_net_power, 0] | max) | round(0),
+              "production_w": ([0 - toon_net_power, 0] | max) | round(0)
+            }) %}
+            {% if toon_import_rows | count > 0 %}
+              {% set ns.values = dict(
+                ns.values,
+                import_high_kwh=(toon_import_rows[-1]["sum"] | float(0) | round(3))
+              ) %}
+            {% endif %}
+            {% if toon_export_rows | count > 0 %}
+              {% set ns.values = dict(
+                ns.values,
+                export_high_kwh=(toon_export_rows[-1]["sum"] | float(0) | round(3))
+              ) %}
+            {% endif %}
+            {% if toon_gas_rows | count > 0 %}
+              {% set ns.values = dict(
+                ns.values,
+                gas_total_m3=(toon_gas_rows[-1]["sum"] | float(0) | round(3))
+              ) %}
+            {% endif %}
+            {{ ns.values | tojson }}
+          qos: 0
+          retain: false

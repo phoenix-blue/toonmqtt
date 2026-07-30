@@ -1,0 +1,63 @@
+# Voorbeelden voor Home Assistant. Vervang de sensor-id's en zo nodig het
+# basistopic. De voorbeelden veronderstellen dat de HA MQTT-integratie al met
+# dezelfde broker is verbonden als Toon MQTT.
+
+- id: toon_mqtt_net_power
+  alias: "Toon MQTT - actueel vermogen"
+  mode: restart
+  trigger:
+    - platform: state
+      entity_id: sensor.grid_power
+  condition:
+    - condition: template
+      value_template: "{{ is_number(states('sensor.grid_power')) }}"
+  action:
+    - action: mqtt.publish
+      data:
+        topic: toon/voorbeeld/inject/power_w
+        payload: "{{ [states('sensor.grid_power') | float(0), 0] | max | round(0) }}"
+        retain: false
+    - action: mqtt.publish
+      data:
+        topic: toon/voorbeeld/inject/production_w
+        payload: "{{ [0 - (states('sensor.grid_power') | float(0)), 0] | max | round(0) }}"
+        retain: false
+
+- id: toon_mqtt_energy_totals
+  alias: "Toon MQTT - elektriciteitstellerstanden"
+  mode: restart
+  trigger:
+    - platform: state
+      entity_id:
+        - sensor.energy_import_low
+        - sensor.energy_import_high
+        - sensor.energy_export_low
+        - sensor.energy_export_high
+  action:
+    - action: mqtt.publish
+      data:
+        topic: toon/voorbeeld/inject/state
+        payload: >-
+          {
+            "import_low_kwh": {{ states('sensor.energy_import_low') | float(0) }},
+            "import_high_kwh": {{ states('sensor.energy_import_high') | float(0) }},
+            "export_low_kwh": {{ states('sensor.energy_export_low') | float(0) }},
+            "export_high_kwh": {{ states('sensor.energy_export_high') | float(0) }}
+          }
+        retain: false
+
+- id: toon_mqtt_gas_total
+  alias: "Toon MQTT - gasmeterstand"
+  mode: restart
+  trigger:
+    - platform: state
+      entity_id: sensor.gas_total
+  condition:
+    - condition: template
+      value_template: "{{ is_number(states('sensor.gas_total')) }}"
+  action:
+    - action: mqtt.publish
+      data:
+        topic: toon/voorbeeld/inject/gas_total_m3
+        payload: "{{ states('sensor.gas_total') }}"
+        retain: false

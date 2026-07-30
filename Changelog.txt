@@ -1,0 +1,17 @@
+1.2.0
+- volwaardige Home Assistant thermostaat met status, setpoint en presets
+- discovery wordt na een Home Assistant-herstart opnieuw aangeboden
+- extra beschikbare OpenTherm ketelwaarden en diagnose-entiteiten
+- extra gemiddelde energie-/gaswaarden en branderstatus
+- verbeterde temperatuurpublicatie en release-/gebruikersdocumentatie
+
+1.1.0
+- MQTT-logo en volledig instelbare tegel
+- profielen voor standaard MQTT, Home Assistant, Domoticz en openHAB
+- Home Assistant MQTT Discovery
+- bediening van thermostaat-, tapwater- en cv-instellingen
+- injectie van elektriciteitsvermogen, kWh-tellers en gasmeterstand
+- automatische installatie en opstart via de TSC Store
+
+1.0.0
+- eerste werkende tegel en lokale MQTT-service

@@ -1,0 +1,13 @@
+	<app>
+		<name>Toon MQTT</name>
+		<version>1.2.0</version>
+		<folder>toonmqtt</folder>
+		<description>Lokale MQTT-koppeling met domotica-discovery, Toon-bediening en injectie van elektriciteits- en gasmeterdata.</description>
+		<author>Toon MQTT contributors</author>
+		<skipautoupdate>no</skipautoupdate>
+		<screenshots>2</screenshots>
+		<firmwareminimum>5.0.00</firmwareminimum>
+		<firmwaremaximum>9.99.9</firmwaremaximum>
+		<toon2only>yes</toon2only>
+		<allowdeletion>yes</allowdeletion>
+	</app>

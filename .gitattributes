@@ -1,0 +1,6 @@
+toon_mqtt_client binary
+*.png binary
+*.svg text
+*.qml text
+*.sh text eol=lf
+
