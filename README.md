@@ -4,7 +4,7 @@ Lokale MQTT-koppeling voor een geroot Eneco/Quby Toon 2. De app toont een tegel
 op Toon, publiceert de beschikbare thermostaat-, klimaat-, ketel- en
 energiegegevens en accepteert bedienings- en meterwaarden via MQTT.
 
-Versie 1.2.1 is bedoeld voor installatie via de TSC Store. Na installatie
+Versie 1.2.2 is bedoeld voor installatie via de TSC Store. Na installatie
 plaatst de app zelf de achtergrondservice en opstartkoppeling; er zijn op Toon
 geen handmatige SSH-commando's nodig.
 

@@ -1,3 +1,6 @@
+1.2.2
+- zichtbaar paars MQTT-logo in het miniatuur van de tegelkiezer
+
 1.2.1
 - opruimen na verwijderen werkt nu ook zonder bereikbare MQTT-broker
 - achtergebleven service-, boot- en PID-koppelingen worden verwijderd

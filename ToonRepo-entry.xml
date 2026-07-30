@@ -1,6 +1,6 @@
 	<app>
 		<name>Toon MQTT</name>
-		<version>1.2.1</version>
+		<version>1.2.2</version>
 		<folder>toonmqtt</folder>
 		<description>Lokale MQTT-koppeling met domotica-discovery, Toon-bediening en injectie van elektriciteits- en gasmeterdata.</description>
 		<author>Toon MQTT contributors</author>

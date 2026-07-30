@@ -8,7 +8,7 @@ App {
 
     property url tileUrl: "ToonmqttTile.qml"
     property url settingsUrl: "ToonmqttSettings.qml"
-    property url thumbnailIcon: "drawables/ToonmqttIcon.svg"
+    property url thumbnailIcon: "drawables/MqttLogoThumbnail.png"
 
     property string mqttHost: "127.0.0.1"
     property string mqttPort: "1883"

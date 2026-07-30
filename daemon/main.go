@@ -30,7 +30,7 @@ const (
 	energyStatePath = "/mnt/data/tsc/toon-mqtt-energy.json"
 	backupPath      = "/mnt/data/tsc/backups/toonmqtt-energy-original"
 	appPath         = "/qmf/qml/apps/toonmqtt"
-	version         = "1.2.1"
+	version         = "1.2.2"
 )
 
 var (

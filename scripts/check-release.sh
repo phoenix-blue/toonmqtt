@@ -38,7 +38,8 @@ for path in \
     ToonmqttApp.qml ToonmqttTile.qml ToonmqttSettings.qml qmldir \
     toonmqtt.sh S99toon-mqtt.sh toon-mqtt-service.sh toon_mqtt_client \
     Changelog.txt description/description.txt \
-    drawables/MqttLogo.svg drawables/ToonmqttIcon.svg \
+    drawables/MqttLogo.svg drawables/MqttLogoThumbnail.png \
+    drawables/ToonmqttIcon.svg \
     home-assistant/blueprints/automation/toonmqtt/zonneplan_energy_bridge.yaml \
     docs/images/toonmqtt_screenshot_1.png \
     docs/images/toonmqtt_screenshot_2.png

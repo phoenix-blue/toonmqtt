@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.2
+
+- Opgelost: het miniatuur in de tegelkiezer gebruikt nu een contrastrijke PNG
+  van het paarse MQTT-logo, omdat Toon directe SVG-miniaturen niet betrouwbaar
+  rendert.
+
 ## 1.2.1
 
 - Opgelost: bij verwijderen via de ToonStore ruimt de achtergrondservice zijn
