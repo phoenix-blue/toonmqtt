@@ -28,13 +28,13 @@ const (
 	statusPath      = "/var/volatile/tmp/toon-mqtt-status.json"
 	controlPath     = "/mnt/data/tsc/toon-mqtt-control"
 	energyStatePath = "/mnt/data/tsc/toon-mqtt-energy.json"
+	backupPath      = "/mnt/data/tsc/backups/toonmqtt-energy-original"
 	appPath         = "/qmf/qml/apps/toonmqtt"
-	version         = "1.2.0"
+	version         = "1.2.1"
 )
 
 var (
-	errReload     = errors.New("configuration reload requested")
-	errAppRemoved = errors.New("toonmqtt app removed")
+	errReload = errors.New("configuration reload requested")
 )
 
 type Config struct {
@@ -162,8 +162,8 @@ func defaultConfig() Config {
 	return Config{
 		Host: "127.0.0.1", Port: 1883, Username: "",
 		Password: "", BaseTopic: "toon/voorbeeld",
-		Platform: "homeassistant", DiscoveryPrefix: "homeassistant",
-		Discovery: true, ControlEnabled: true, IntervalSeconds: 30,
+		Platform: "mqtt", DiscoveryPrefix: "homeassistant",
+		Discovery: false, ControlEnabled: true, IntervalSeconds: 30,
 		EnergyInjection: true, EnergyTimeout: 180,
 	}
 }
@@ -173,7 +173,9 @@ func cleanConfig(c Config) (Config, error) {
 	c.BaseTopic = strings.Trim(strings.TrimSpace(c.BaseTopic), "/")
 	c.Platform = strings.ToLower(strings.TrimSpace(c.Platform))
 	switch c.Platform {
-	case "", "home assistant", "ha":
+	case "":
+		c.Platform = "mqtt"
+	case "home assistant", "ha":
 		c.Platform = "homeassistant"
 	case "standard", "standaard", "generic", "normal", "normaal":
 		c.Platform = "mqtt"
@@ -1235,11 +1237,52 @@ func cleanupAfterAppRemoval() {
 		"/qmf/bin/toon-mqtt-service.sh",
 		"/etc/rc5.d/S99toon-mqtt",
 		"/var/run/toon-mqtt.pid",
+		"/var/run/toon-mqtt.pid.stopped",
+		"/var/volatile/log/toon-mqtt.log",
+		configPath,
+		energyStatePath,
 		statusPath,
 		controlPath,
 	} {
 		_ = os.Remove(path)
 	}
+	_ = os.RemoveAll(backupPath)
+}
+
+// watchAppRemoval is deliberately independent of the MQTT connection. An
+// uninstall must also clean up the service when the broker is unavailable or
+// has never been configured. Requiring the app path to be absent for five
+// consecutive seconds avoids reacting to the brief remove/relink window during
+// a Store upgrade.
+func watchPathRemoval(path string, grace, pollInterval time.Duration, onRemoval func()) {
+	ticker := time.NewTicker(pollInterval)
+	defer ticker.Stop()
+
+	var missingSince time.Time
+	for range ticker.C {
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			if missingSince.IsZero() {
+				missingSince = time.Now()
+				continue
+			}
+			if time.Since(missingSince) >= grace {
+				onRemoval()
+				return
+			}
+			continue
+		}
+		missingSince = time.Time{}
+	}
+}
+
+func watchAppRemoval() {
+	watchPathRemoval(appPath, 5*time.Second, time.Second, func() {
+		// Live flows must not remain visible on Toon after the bridge has gone.
+		_ = sendMeterNotify(energyRoutes["power_w"], 0)
+		_ = sendMeterNotify(energyRoutes["production_w"], 0)
+		cleanupAfterAppRemoval()
+		os.Exit(0)
+	})
 }
 
 func runConnected(m *mqttClient, c Config) error {
@@ -1335,10 +1378,6 @@ func runConnected(m *mqttClient, c Config) error {
 				writeStatus(status)
 			}
 		case <-energyTicker.C:
-			if _, err := os.Stat(appPath); os.IsNotExist(err) {
-				cleanupAfterAppRemoval()
-				return errAppRemoved
-			}
 			parsed, err := time.Parse(time.RFC3339, energyState.LastUpdate)
 			stale := err != nil || time.Since(parsed) > time.Duration(c.EnergyTimeout)*time.Second
 			status.EnergyOnline = !stale
@@ -1518,6 +1557,7 @@ func main() {
 		}
 		return
 	}
+	go watchAppRemoval()
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -1534,12 +1574,6 @@ func main() {
 				c = fresh
 			}
 			continue
-		}
-		if errors.Is(err, errAppRemoved) {
-			_ = os.Remove("/qmf/bin/toon_mqtt_client")
-			_ = os.Remove("/qmf/bin/toon-mqtt-service.sh")
-			_ = os.Remove("/etc/rc5.d/S99toon-mqtt")
-			return
 		}
 		s := Status{Connected: false, Broker: net.JoinHostPort(c.Host, strconv.Itoa(c.Port)), LastError: err.Error()}
 		writeStatus(s)

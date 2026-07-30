@@ -2,11 +2,24 @@ package main
 
 import (
 	"math"
+	"os"
+	"path/filepath"
 	"testing"
+	"time"
 )
 
 func closeEnough(a, b float64) bool {
 	return math.Abs(a-b) < 0.001
+}
+
+func TestDefaultConfigUsesPlainMQTT(t *testing.T) {
+	got := defaultConfig()
+	if got.Platform != "mqtt" {
+		t.Fatalf("default platform = %q, want mqtt", got.Platform)
+	}
+	if got.Discovery {
+		t.Fatal("Home Assistant discovery must be disabled by default")
+	}
 }
 
 func TestOpenThermF88(t *testing.T) {
@@ -66,5 +79,27 @@ func TestParseOpenThermTableSkipsNeverUpdatedAndInvalidValues(t *testing.T) {
 	}
 	if got.BoilerPressure != nil {
 		t.Fatalf("out-of-range pressure was published: %v", *got.BoilerPressure)
+	}
+}
+
+func TestWatchPathRemovalWithoutMQTTConnection(t *testing.T) {
+	appDir := filepath.Join(t.TempDir(), "toonmqtt")
+	if err := os.Mkdir(appDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	removed := make(chan struct{})
+	go watchPathRemoval(appDir, 30*time.Millisecond, 5*time.Millisecond, func() {
+		close(removed)
+	})
+
+	if err := os.Remove(appDir); err != nil {
+		t.Fatal(err)
+	}
+
+	select {
+	case <-removed:
+	case <-time.After(time.Second):
+		t.Fatal("app removal was not detected without an MQTT connection")
 	}
 }

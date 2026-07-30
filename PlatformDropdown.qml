@@ -7,8 +7,8 @@ Item {
     height: 54
     z: popup.visible ? 1000 : 1
 
-    property string currentValue: "homeassistant"
-    property string currentLabel: "Home Assistant"
+    property string currentValue: "mqtt"
+    property string currentLabel: "Standaard MQTT"
 
     function selectValue(value) {
         for (var i = 0; i < platformModel.count; i++) {
@@ -23,7 +23,7 @@ Item {
     }
 
     Text {
-        text: "Domoticasysteem"
+        text: "Domoticasysteem (optioneel)"
         color: "#555555"
         font.pixelSize: qfont.metaText
         anchors {

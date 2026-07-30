@@ -4,17 +4,18 @@ Lokale MQTT-koppeling voor een geroot Eneco/Quby Toon 2. De app toont een tegel
 op Toon, publiceert de beschikbare thermostaat-, klimaat-, ketel- en
 energiegegevens en accepteert bedienings- en meterwaarden via MQTT.
 
-Versie 1.2.0 is bedoeld voor installatie via de TSC Store. Na installatie
+Versie 1.2.1 is bedoeld voor installatie via de TSC Store. Na installatie
 plaatst de app zelf de achtergrondservice en opstartkoppeling; er zijn op Toon
 geen handmatige SSH-commando's nodig.
 
 ## Mogelijkheden
 
 - Instellen vanaf de tegel: broker, poort, gebruikersnaam, wachtwoord,
-  basistopic, publicatie-interval en discovery.
+  basistopic en publicatie-interval. Een nieuwe installatie begint met gewone
+  MQTT, zonder afhankelijkheid van een domoticasysteem.
 - Keuze uit Standaard MQTT, Home Assistant, Domoticz en openHAB. Automatische
-  discovery is beschikbaar voor Home Assistant; de andere profielen gebruiken
-  het gedocumenteerde standaard MQTT-contract.
+  discovery-instellingen verschijnen alleen bij Home Assistant; de andere
+  profielen gebruiken het gedocumenteerde standaard MQTT-contract.
 - Home Assistant MQTT Discovery voor sensoren, een echte `climate`-thermostaat,
   schakelaars,
   instellingen en energie-injectie.
@@ -42,6 +43,11 @@ Wanneer de app in de TSC Store is opgenomen:
 De MQTT-configuratie wordt op Toon bewaard in
 `/mnt/data/tsc/toon-mqtt.json`. Het wachtwoord staat daar leesbaar in en moet
 daarom een afzonderlijk lokaal MQTT-account met beperkte rechten zijn.
+
+Verwijderen via de ToonStore stopt de daemon en wist alle door Toon MQTT
+beheerde servicekoppelingen, runtimebestanden, configuratie en inloggegevens.
+Daarna heeft een eventuele herinstallatie weer de neutrale
+standaardinstellingen.
 
 ## Energie vanuit Home Assistant
 

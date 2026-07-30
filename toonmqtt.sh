@@ -9,15 +9,15 @@ BACKUP_DIR=/mnt/data/tsc/backups/toonmqtt-energy-original
 SERVICE_LINK=/qmf/bin/toon-mqtt-service.sh
 BINARY_LINK=/qmf/bin/toon_mqtt_client
 BOOT_LINK=/etc/rc5.d/S99toon-mqtt
+STATUS=/var/volatile/tmp/toon-mqtt-status.json
+CONTROL=/mnt/data/tsc/toon-mqtt-control
+ENERGY_STATE=/mnt/data/tsc/toon-mqtt-energy.json
+PID=/var/run/toon-mqtt.pid
+STOPPED_PID=/var/run/toon-mqtt.pid.stopped
+LOG=/var/volatile/log/toon-mqtt.log
 
 install_app() {
-    mkdir -p /mnt/data/tsc "$BACKUP_DIR" /var/volatile/log
-
-    if [ ! -f "$BACKUP_DIR/config_happ_pwrusage.xml" ]; then
-        cp -a /mnt/data/qmf/config/config_happ_pwrusage.xml "$BACKUP_DIR/" 2>/dev/null
-        cp -a /mnt/data/qmf/config/config_hcb_rrd.xml "$BACKUP_DIR/" 2>/dev/null
-        cp -a /mnt/data/qmf/config/config_hdrv_p1.xml "$BACKUP_DIR/" 2>/dev/null
-    fi
+    mkdir -p /mnt/data/tsc /var/volatile/log
 
     if [ -x "$SERVICE_LINK" ]; then
         "$SERVICE_LINK" stop >/dev/null 2>&1
@@ -43,8 +43,13 @@ install_app() {
 uninstall_app() {
     if [ -x "$SERVICE_LINK" ]; then
         "$SERVICE_LINK" stop >/dev/null 2>&1
+    elif [ -x "$APP_DIR/toon-mqtt-service.sh" ]; then
+        "$APP_DIR/toon-mqtt-service.sh" stop >/dev/null 2>&1
     fi
-    rm -f "$BINARY_LINK" "$SERVICE_LINK" "$BOOT_LINK"
+    rm -f "$BINARY_LINK" "$SERVICE_LINK" "$BOOT_LINK" \
+        "$STATUS" "$CONTROL" "$ENERGY_STATE" "$CONFIG" \
+        "$PID" "$STOPPED_PID" "$LOG"
+    rm -rf "$BACKUP_DIR"
 }
 
 case "$1" in

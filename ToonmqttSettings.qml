@@ -165,6 +165,7 @@ Screen {
                     width: 450
                     labelText: "Discovery-prefix"
                     placeholder: "homeassistant"
+                    visible: platformDropdown.currentValue === "homeassistant"
                 }
                 EditTextLabel {
                     id: intervalField
@@ -176,10 +177,23 @@ Screen {
                 SettingToggle {
                     id: discoveryToggle
                     label: "HA automatische configuratie"
+                    visible: platformDropdown.currentValue === "homeassistant"
                 }
                 SettingToggle {
                     id: controlToggle
                     label: "Bediening via MQTT"
+                }
+
+                Text {
+                    width: 430
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    visible: platformDropdown.currentValue !== "homeassistant"
+                    text: platformDropdown.currentValue === "mqtt" ?
+                          "Basisprofiel: gewone MQTT-topics, zonder domotica-afhankelijke configuratie." :
+                          "Dit profiel gebruikt de gewone MQTT-topics. Systeemspecifieke instellingen verschijnen alleen wanneer ze nodig zijn."
+                    color: "#555555"
+                    font.pixelSize: qfont.metaText
                 }
 
                 StandardButton {

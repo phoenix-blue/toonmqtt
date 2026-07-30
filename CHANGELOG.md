@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2.1
+
+- Opgelost: bij verwijderen via de ToonStore ruimt de achtergrondservice zijn
+  opstart- en servicelinks nu ook op wanneer geen MQTT-broker bereikbaar is.
+- Opgelost: ook een eventueel achtergebleven gestopt PID-bestand wordt
+  verwijderd.
+- Gewijzigd: een nieuwe installatie start met gewone MQTT; Home Assistant
+  Discovery staat standaard uit en de bijbehorende velden zijn alleen zichtbaar
+  wanneer Home Assistant is geselecteerd.
+- Gewijzigd: verwijderen wist alle door de app beheerde configuratie,
+  inloggegevens, runtimebestanden en installatieback-up.
+
 ## 1.2.0
 
 - Toegevoegd: echte Home Assistant MQTT-klimaatentiteit met actuele

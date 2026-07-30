@@ -1,3 +1,9 @@
+1.2.1
+- opruimen na verwijderen werkt nu ook zonder bereikbare MQTT-broker
+- achtergebleven service-, boot- en PID-koppelingen worden verwijderd
+- standaard gewone MQTT; Home Assistant-opties alleen na selectie
+- uninstall verwijdert appconfiguratie, inloggegevens en runtimebestanden
+
 1.2.0
 - volwaardige Home Assistant thermostaat met status, setpoint en presets
 - discovery wordt na een Home Assistant-herstart opnieuw aangeboden

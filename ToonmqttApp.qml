@@ -15,9 +15,9 @@ App {
     property string mqttUsername: ""
     property string mqttPassword: ""
     property string baseTopic: "toon/voorbeeld"
-    property string platform: "homeassistant"
+    property string platform: "mqtt"
     property string discoveryPrefix: "homeassistant"
-    property bool discovery: true
+    property bool discovery: false
     property bool controlEnabled: true
     property int intervalSeconds: 30
     property bool energyInjection: true

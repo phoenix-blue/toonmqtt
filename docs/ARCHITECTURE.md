@@ -37,11 +37,13 @@ Gasdebiet wordt door Toon afgeleid uit opeenvolgende cumulatieve gasstanden.
 - De tellerbeveiliging wordt persistent bewaard in
   `/mnt/data/tsc/toon-mqtt-energy.json`.
 - Live W-waarden worden bij uitblijven van berichten automatisch nul.
-- De originele energieconfiguratie wordt bij de eerste installatie bewaard in
-  `/mnt/data/tsc/backups/toonmqtt-energy-original`.
 - De app wijzigt de originele Quby-configuratie niet.
 
-De huidige TSC-helper verwijdert eerst de appmap. De draaiende service merkt
-het ontbrekende `/qmf/qml/apps/toonmqtt` vervolgens binnen tien seconden op en
-ruimt zijn service-, binary- en opstartkoppelingen op. Gebruikersconfiguratie
-en de veiligheidsbackup blijven bewust op `/mnt/data` staan.
+De huidige TSC-helper verwijdert eerst de appmap. Een broker-onafhankelijke
+bewakingslus merkt het ontbrekende `/qmf/qml/apps/toonmqtt` vervolgens binnen
+enkele seconden op en ruimt de service-, binary-, opstart- en PID-koppelingen
+op. De appmap moet vijf seconden onafgebroken ontbreken, zodat de korte
+verwijder-/herkoppelfase tijdens een Store-update niet als de-installatie wordt
+gezien. Daarna worden ook de door de app beheerde configuratie, inloggegevens,
+energiestatus en installatieback-up verwijderd. Historische, handmatig gemaakte
+veiligheidsback-ups vallen daar niet onder.
