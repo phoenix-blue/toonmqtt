@@ -44,10 +44,20 @@ De MQTT-configuratie wordt op Toon bewaard in
 `/mnt/data/tsc/toon-mqtt.json`. Het wachtwoord staat daar leesbaar in en moet
 daarom een afzonderlijk lokaal MQTT-account met beperkte rechten zijn.
 
-Verwijderen via de ToonStore stopt de daemon en wist alle door Toon MQTT
-beheerde servicekoppelingen, runtimebestanden, configuratie en inloggegevens.
-Daarna heeft een eventuele herinstallatie weer de neutrale
-standaardinstellingen.
+## Updates en verwijderen
+
+Een normale update via de ToonStore bewaart de bestaande MQTT-configuratie,
+inloggegevens, integratiekeuze en energiestatus. De installer maakt alleen een
+nieuwe standaardconfiguratie wanneer nog geen configuratiebestand bestaat.
+
+Verwijderen via de ToonStore is bewust anders: dit stopt de daemon en wist alle
+door Toon MQTT beheerde servicekoppelingen, runtimebestanden, configuratie en
+inloggegevens. Een latere herinstallatie begint daardoor weer met de neutrale
+standaardinstellingen voor gewone MQTT.
+
+Reeds door Toon opgeslagen meetgeschiedenis wordt niet gewist. Alleen de
+actuele geïnjecteerde verbruiks- en productiewaarden worden bij verwijderen op
+nul gezet.
 
 ## Energie vanuit Home Assistant
 
