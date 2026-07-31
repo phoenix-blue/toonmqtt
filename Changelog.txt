@@ -1,3 +1,6 @@
+1.2.3
+- zichtbaar MQTT-miniatuur via een op Toon aanwezige TSC-afbeelding
+
 1.2.2
 - zichtbaar paars MQTT-logo in het miniatuur van de tegelkiezer
 

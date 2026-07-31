@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.3
+
+- Opgelost: het miniatuur in de tegelkiezer gebruikt nu een op Toon aanwezig
+  TSC-symbool met het opschrift `MQTT`. Daardoor blijft de tegel herkenbaar op
+  firmwareversies die losse PNG- en SVG-bestanden uit een app-map niet in de
+  tegelkiezer laden.
+
 ## 1.2.2
 
 - Opgelost: het miniatuur in de tegelkiezer gebruikt nu een contrastrijke PNG

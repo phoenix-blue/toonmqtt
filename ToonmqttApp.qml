@@ -8,7 +8,7 @@ App {
 
     property url tileUrl: "ToonmqttTile.qml"
     property url settingsUrl: "ToonmqttSettings.qml"
-    property url thumbnailIcon: "drawables/MqttLogoThumbnail.png"
+    property url thumbnailIcon: "qrc:/tsc/refresh.png"
 
     property string mqttHost: "127.0.0.1"
     property string mqttPort: "1883"
@@ -35,6 +35,7 @@ App {
         registry.registerWidget("tile", tileUrl, this, null, {
             thumbLabel: "Toon MQTT",
             thumbIcon: thumbnailIcon,
+            thumbCaption: "MQTT",
             thumbCategory: "general",
             thumbWeight: 31,
             baseTileWeight: 11,

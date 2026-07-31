@@ -11,7 +11,7 @@ de Toon Software Collective.
 2. Controleer dat het ARMv7-bestand `toon_mqtt_client` uitvoerbaar in de
    repository staat.
 3. Maak een Git-tag met exact dezelfde waarde als `version.txt`, voor deze
-   release `1.2.2`.
+   release `1.2.3`.
 4. Voeg [`ToonRepo-entry.xml`](../ToonRepo-entry.xml) toe aan `ToonRepo.xml`
    in `ToonSoftwareCollective/toonstore_AppRepository`.
 5. Voeg de Store-screenshots uit `docs/images` aan die repository toe met
@@ -47,7 +47,7 @@ Maak daar een pull request die:
   `ToonRepo.xml` toevoegt;
 - `toonmqtt_screenshot_1.png` en `toonmqtt_screenshot_2.png` uit
   [`images`](images) in de catalogusroot zet;
-- dezelfde `folder` (`toonmqtt`) en versie (`1.2.2`) gebruikt als de
+- dezelfde `folder` (`toonmqtt`) en versie (`1.2.3`) gebruikt als de
   applicatierepository/tag.
 
 Vraag vóór samenvoegen ook dat een beheerder bevestigt dat
@@ -59,7 +59,7 @@ bereikbaar is. Anders ziet de Store de app wel, maar faalt installatie.
 - Werk de versie bij in `version.txt`, `toonstore.cfg`, `daemon/main.go`,
   `CHANGELOG.md`, `Changelog.txt` en `ToonRepo-entry.xml`.
 - Bouw de ARMv7-binary opnieuw met `scripts/build.sh`.
-- Draai `scripts/check-release.sh 1.2.2`.
+- Draai `scripts/check-release.sh 1.2.3`.
 - Test configuratiebehoud bij een update.
 - Test tegel, keuzelijst, beide instellingenpagina's en verbindingstest.
 - Test ten minste `inject/power_w`, zet de testwaarde daarna terug naar 0.
