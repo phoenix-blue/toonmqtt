@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.4
+
+- Opgelost: bij het aanpassen van een instelling opent nu een afzonderlijke
+  bewerkweergave met het invoerveld boven het schermtoetsenbord. Het actieve
+  veld blijft daardoor tijdens het typen volledig zichtbaar.
+- Verduidelijkt: Toon MQTT is uitsluitend bedoeld voor Toon 2.
+
 ## 1.2.3
 
 - Opgelost: het miniatuur in de tegelkiezer gebruikt nu een op Toon aanwezig

@@ -1,3 +1,7 @@
+1.2.4
+- apart invoerscherm houdt het actieve veld zichtbaar boven het toetsenbord
+- documentatie verduidelijkt dat de app uitsluitend voor Toon 2 is
+
 1.2.3
 - zichtbaar MQTT-miniatuur via een op Toon aanwezige TSC-afbeelding
 
