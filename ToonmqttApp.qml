@@ -20,15 +20,22 @@ App {
     property bool discovery: false
     property bool controlEnabled: true
     property int intervalSeconds: 30
+    property int heartbeatSeconds: 300
     property bool energyInjection: true
     property int energyTimeoutSeconds: 180
+    property var pointConfig: ({})
+    property var pointStatus: ({})
+    property var sourceConflicts: ({})
 
     property bool connected: false
     property bool energyOnline: false
     property string lastPublish: ""
+    property string lastSample: ""
     property string lastEnergyUpdate: ""
     property string lastTest: ""
     property string lastError: ""
+    property string lastEvent: ""
+    property string lastEventType: ""
     property string testResult: ""
 
     function init() {
@@ -73,8 +80,10 @@ App {
                     discovery = c.discovery !== undefined ? c.discovery : discovery
                     controlEnabled = c.control_enabled !== undefined ? c.control_enabled : controlEnabled
                     intervalSeconds = c.interval_seconds || intervalSeconds
+                    heartbeatSeconds = c.heartbeat_seconds || heartbeatSeconds
                     energyInjection = c.energy_injection !== undefined ? c.energy_injection : energyInjection
                     energyTimeoutSeconds = c.energy_timeout_seconds || energyTimeoutSeconds
+                    pointConfig = c.points !== undefined ? c.points : pointConfig
                 } catch (e) {
                     lastError = "Instellingen zijn niet leesbaar"
                 }
@@ -95,8 +104,10 @@ App {
         discovery = settings.discovery
         controlEnabled = settings.control_enabled
         intervalSeconds = settings.interval_seconds
+        heartbeatSeconds = settings.heartbeat_seconds
         energyInjection = settings.energy_injection
         energyTimeoutSeconds = settings.energy_timeout_seconds
+        pointConfig = settings.points
 
         var request = new XMLHttpRequest()
         request.open("PUT", "file:///mnt/data/tsc/toon-mqtt.json", false)
@@ -111,8 +122,10 @@ App {
             discovery: discovery,
             control_enabled: controlEnabled,
             interval_seconds: intervalSeconds,
+            heartbeat_seconds: heartbeatSeconds,
             energy_injection: energyInjection,
-            energy_timeout_seconds: energyTimeoutSeconds
+            energy_timeout_seconds: energyTimeoutSeconds,
+            points: pointConfig
         }, null, "\t"))
         restartService()
     }
@@ -130,6 +143,11 @@ App {
     function resetEnergyProtection() {
         testResult = "Tellerbeveiliging resetten..."
         writeControl("reset_energy")
+    }
+
+    function exportDiagnostics() {
+        testResult = "Veilig diagnoserapport maken..."
+        writeControl("export_diagnostics")
     }
 
     function platformName(value) {
@@ -155,11 +173,16 @@ App {
             connected = s.connected === true
             energyOnline = s.energy_online === true
             lastPublish = s.last_publish || ""
+            lastSample = s.last_sample || ""
             lastEnergyUpdate = s.last_energy_update || ""
             lastTest = s.last_test || ""
             if (s.test_result)
                 testResult = s.test_result
             lastError = s.last_error || ""
+            lastEvent = s.last_event || ""
+            lastEventType = s.last_event_type || ""
+            pointStatus = s.points || ({})
+            sourceConflicts = s.source_conflicts || ({})
         } catch (e) {
             connected = false
         }

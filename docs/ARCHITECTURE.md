@@ -13,6 +13,16 @@ De QML-app schrijft alleen configuratie en korte besturingsverzoeken. Alle
 netwerk- en Toon-interactie gebeurt in de afzonderlijke service, zodat de
 gebruikersinterface niet blokkeert.
 
+De daemon bemonstert Toon onafhankelijk van MQTT-publicatie. Een genormaliseerde
+snapshot bepaalt welke losse topics sinds de vorige meting zijn gewijzigd; een
+aparte heartbeat zorgt periodiek voor volledige herpublicatie. De runtime houdt
+per punt bron, beschikbaarheid en laatst-gezienmoment bij voor de QML-interface.
+
+Bij een configuratiereload wordt de nieuwe configuratie gelezen terwijl de
+oude brokerverbinding nog bestaat. Daardoor kunnen retained state- en Home
+Assistant Discovery-records van de vorige namespace eerst worden verwijderd.
+Status en diagnose bevatten bewust geen MQTT-wachtwoord.
+
 ## Normale Toon-meterketen
 
 De injectie schrijft niet alleen tekst op de MQTT-tegel. De service stuurt een

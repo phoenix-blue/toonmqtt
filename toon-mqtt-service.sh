@@ -1,5 +1,7 @@
 #!/bin/sh
 
+umask 077
+
 BIN=/qmf/qml/apps/toonmqtt/toon_mqtt_client
 PID=/var/run/toon-mqtt.pid
 LOG=/var/volatile/log/toon-mqtt.log

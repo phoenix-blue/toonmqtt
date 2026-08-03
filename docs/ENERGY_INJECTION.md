@@ -5,6 +5,17 @@ of een ander MQTT-systeem aanbieden aan Toons bestaande interne meterobjecten.
 Daardoor ziet `happ_pwrusage` de waarden als normale meterupdates; het zijn
 niet alleen waarden op de MQTT-tegel.
 
+Op de instellingenpagina **Energie naar Toon** staat naast ieder topic een
+vinkje. De hoofdschakelaar zet alle MQTT-injectie aan of uit; de afzonderlijke
+vinkjes bepalen welke waarden Toon werkelijk mag overnemen. Wie bijvoorbeeld
+al een zonnepanelen-app op Toon gebruikt, kan **Teruglevering**, **Terug laag**
+en **Terug hoog** uitvinken en verbruik of gas wel via MQTT injecteren.
+
+Uitgevinkte live waarden worden ook niet door de timeout op nul gezet. Zo kan
+Toon MQTT een waarde die door een andere app wordt beheerd niet overschrijven.
+Bij een gecombineerd `inject/state`-bericht worden uitgevinkte velden
+overgeslagen en de overige ingeschakelde velden normaal verwerkt.
+
 ## Welke waarden verwacht Toon?
 
 | MQTT-veld | Eenheid | Type |
@@ -32,7 +43,8 @@ voorkomen. Gebruik bij een bewust vervangen of geresette bronmeter de knop
 **Tellerbeveiliging resetten** op de tegel.
 
 Wanneer de live bron langer dan de ingestelde timeout zwijgt, zet Toon MQTT
-alleen `power_w` en `production_w` op nul. Tellerstanden blijven bewaard.
+alleen de ingeschakelde `power_w` en `production_w` op nul. Tellerstanden en
+uitgevinkte live bronnen blijven ongemoeid.
 
 ## Home Assistant-blueprint
 

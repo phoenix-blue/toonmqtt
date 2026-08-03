@@ -35,7 +35,8 @@ awk -v expected="$EXPECTED" '
 ' daemon/main.go || fail "daemonversie wijkt af"
 
 for path in \
-    ToonmqttApp.qml ToonmqttTile.qml ToonmqttSettings.qml qmldir \
+    ToonmqttApp.qml ToonmqttTile.qml ToonmqttSettings.qml \
+    PointSettingRow.qml TabButton.qml qmldir \
     toonmqtt.sh S99toon-mqtt.sh toon-mqtt-service.sh toon_mqtt_client \
     Changelog.txt description/description.txt \
     drawables/MqttLogo.svg drawables/MqttLogoThumbnail.png \
@@ -46,6 +47,8 @@ for path in \
 do
     [ -s "$path" ] || fail "vereist bestand ontbreekt of is leeg: $path"
 done
+
+[ -s docs/SECURITY.md ] || fail "veiligheidsdocumentatie ontbreekt"
 
 [ -x toon_mqtt_client ] || fail "toon_mqtt_client is niet uitvoerbaar"
 [ -x toonmqtt.sh ] || fail "toonmqtt.sh is niet uitvoerbaar"

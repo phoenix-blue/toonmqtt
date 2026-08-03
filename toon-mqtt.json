@@ -9,6 +9,7 @@
   "discovery": false,
   "control_enabled": true,
   "interval_seconds": 30,
+  "heartbeat_seconds": 300,
   "energy_injection": true,
   "energy_timeout_seconds": 180
 }

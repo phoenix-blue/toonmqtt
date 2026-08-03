@@ -11,6 +11,7 @@ BINARY_LINK=/qmf/bin/toon_mqtt_client
 BOOT_LINK=/etc/rc5.d/S99toon-mqtt
 STATUS=/var/volatile/tmp/toon-mqtt-status.json
 CONTROL=/mnt/data/tsc/toon-mqtt-control
+DIAGNOSTICS=/mnt/data/tsc/toon-mqtt-diagnostics.json
 ENERGY_STATE=/mnt/data/tsc/toon-mqtt-energy.json
 PID=/var/run/toon-mqtt.pid
 STOPPED_PID=/var/run/toon-mqtt.pid.stopped
@@ -25,8 +26,10 @@ install_app() {
 
     if [ ! -s "$CONFIG" ]; then
         cp "$APP_DIR/toon-mqtt.json" "$CONFIG"
-        chmod 600 "$CONFIG"
     fi
+    chmod 600 "$CONFIG"
+    [ ! -f "$ENERGY_STATE" ] || chmod 600 "$ENERGY_STATE"
+    [ ! -f "$DIAGNOSTICS" ] || chmod 600 "$DIAGNOSTICS"
 
     chmod 755 "$APP_DIR/toon_mqtt_client"
     chmod 755 "$APP_DIR/toon-mqtt-service.sh"
@@ -47,7 +50,7 @@ uninstall_app() {
         "$APP_DIR/toon-mqtt-service.sh" stop >/dev/null 2>&1
     fi
     rm -f "$BINARY_LINK" "$SERVICE_LINK" "$BOOT_LINK" \
-        "$STATUS" "$CONTROL" "$ENERGY_STATE" "$CONFIG" \
+        "$STATUS" "$CONTROL" "$DIAGNOSTICS" "$ENERGY_STATE" "$CONFIG" \
         "$PID" "$STOPPED_PID" "$LOG"
     rm -rf "$BACKUP_DIR"
 }

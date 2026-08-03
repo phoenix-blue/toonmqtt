@@ -16,6 +16,11 @@ geen handmatige SSH-commando's nodig.
 - Instellen vanaf de tegel: broker, poort, gebruikersnaam, wachtwoord,
   basistopic en publicatie-interval. Een nieuwe installatie begint met gewone
   MQTT, zonder afhankelijkheid van een domoticasysteem.
+- Per tabblad bepalen welke thermostaat-, BXT-, ketel-, energie- en
+  hardwarepunten worden gepubliceerd of bediend. Elk datapunt heeft een
+  Nederlandse standaardnaam die op het scherm kan worden aangepast.
+- Automatische beschikbaarheidsweergave met bronvermelding, laatst-gezienstatus
+  en waarschuwingen voor mogelijke dubbele energiebronnen.
 - Keuze uit Standaard MQTT, Home Assistant, Domoticz en openHAB. Automatische
   discovery-instellingen verschijnen alleen bij Home Assistant; de andere
   profielen gebruiken het gedocumenteerde standaard MQTT-contract.
@@ -24,12 +29,18 @@ geen handmatige SSH-commando's nodig.
   instellingen en energie-injectie.
 - Publicatie van onder meer temperatuur, luchtvochtigheid, TVOC/eCO2,
   thermostaatstatus, setpoint, ketelmodulatie, beschikbare OpenTherm-data en
-  energiegegevens.
+  energiegegevens. Optionele diagnoses omvatten CPU-belasting, geheugen,
+  processortemperatuur, uptime, opslag en WiFi-tellers.
 - Bediening van setpoint, preset, weekprogramma, tapwater- en cv-instellingen.
 - Injectie van actueel verbruik, teruglevering, kWh-tellerstanden en de
-  gasmeterstand in Toons normale interne meterketen.
+  gasmeterstand in Toons normale interne meterketen. Iedere injectiewaarde kan
+  afzonderlijk worden uitgevinkt wanneer een andere Toon-app die bron beheert.
 - Veilige grenscontroles, een monotone-tellerbeveiliging en automatische
   nulstelling van verouderde live vermogenswaarden.
+- Publicatie bij wijziging met een instelbare volledige heartbeat, automatische
+  opruiming van oude retained topics en afzonderlijke MQTT-gebeurtenissen.
+- Een veilig diagnoserapport zonder brokeradres, account, wachtwoord, topics,
+  meetwaarden of aangepaste namen.
 
 Een Toon 2 meet geen fijnstof met de standaard binnenklimaatsensor. Indien
 aanwezig worden TVOC en de geschatte CO2-waarde gepubliceerd.
@@ -83,6 +94,10 @@ toon/voorbeeld/inject/gas_total_m3
 
 Zie [`docs/TOPICS.md`](docs/TOPICS.md) voor alle state-, set- en injectietopics.
 
+MQTT wordt op Toon 2 zonder TLS gebruikt. Gebruik een afzonderlijk account,
+beperkte broker-ACL's en uitsluitend een vertrouwd lokaal netwerk. Zie
+[`docs/SECURITY.md`](docs/SECURITY.md).
+
 ## Documentatie
 
 - [`docs/HOME_ASSISTANT.md`](docs/HOME_ASSISTANT.md)
@@ -91,6 +106,7 @@ Zie [`docs/TOPICS.md`](docs/TOPICS.md) voor alle state-, set- en injectietopics.
 - [`docs/TOPICS.md`](docs/TOPICS.md)
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - [`docs/TSC_STORE.md`](docs/TSC_STORE.md)
+- [`docs/SECURITY.md`](docs/SECURITY.md)
 
 ## Ontwikkelen
 

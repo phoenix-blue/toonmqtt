@@ -1,5 +1,31 @@
 # Changelog
 
+## In ontwikkeling
+
+- Toegevoegd: lees- en schrijfvinkjes per datapunt, verdeeld over tabbladen
+  voor thermostaat, BXT-sensoren, ketel/OpenTherm, energie en Toon-hardware.
+- Toegevoegd: bewerkbare Nederlandse namen voor domotica-entiteiten, zonder
+  wijziging van de stabiele technische MQTT-topics.
+- Toegevoegd: ruwe lichtintensiteit en Toon-diagnosewaarden zoals CPU,
+  geheugen, temperatuur, uptime, opslag en WiFi-tellers.
+- Gewijzigd: Home Assistant Discovery en retained state-topics volgen de
+  gekozen lees- en schrijfrechten.
+- Toegevoegd: afzonderlijke injectievinkjes direct naast de energietopics.
+  Uitgeschakelde bronnen worden ook niet meer door de live-data-timeout op nul
+  gezet, zodat een andere Toon-app de bron veilig kan blijven beheren.
+- Toegevoegd: automatische beschikbaarheids- en bronweergave per datapunt,
+  inclusief laatst-gezienstatus en detectie van mogelijke energiebronconflicten.
+- Toegevoegd: publicatie bij wijziging, instelbare heartbeat en opruiming van
+  oude retained state- en Discovery-records na configuratiewijzigingen.
+- Toegevoegd: niet-retained MQTT-events voor beschikbaarheid, storingen,
+  bronconflicten, energietimeouts en Toon-hardwarewaarschuwingen.
+- Toegevoegd: lokaal veilig diagnoserapport zonder privéconfiguratie of
+  meetwaarden.
+- Beveiligd: begrensde MQTT-pakketten en opdrachten, strengere configuratie- en
+  topicvalidatie en bestandsrechten `0600` voor gevoelige runtimebestanden.
+- Gewijzigd: de actieve hoofdtab en datapunt-tab hebben een duidelijk donker
+  paarse achtergrond met een lichte onderstreping.
+
 ## 1.2.4
 
 - Opgelost: bij het aanpassen van een instelling opent nu een afzonderlijke

@@ -3,3 +3,5 @@ ToonmqttApp 1.0 ToonmqttApp.qml
 PlatformDropdown 1.0 PlatformDropdown.qml
 SettingToggle 1.0 SettingToggle.qml
 EnergyTopicRow 1.0 EnergyTopicRow.qml
+PointSettingRow 1.0 PointSettingRow.qml
+TabButton 1.0 TabButton.qml

@@ -26,6 +26,7 @@ zolang de service met de broker is verbonden.
 | `state/primary_humidity` | %, ruwe binnenklimaatsensor |
 | `state/tvoc_ppb` | ppb, indien aanwezig |
 | `state/eco2_ppm` | ppm, indien aanwezig |
+| `state/light_intensity` | ruwe telling van de omgevingslichtsensor |
 | `state/power_usage_w` | W |
 | `state/power_usage_average_w` | W |
 | `state/power_production_w` | W |
@@ -37,10 +38,44 @@ zolang de service met de broker is verbonden.
 | `state/max_heater_temperature` | °C |
 | `state/max_heating_rate` | kW |
 | `state/temperature_offset` | °C |
+| `state/system_cpu_percent` | CPU-belasting in % |
+| `state/system_load_1m` | gemiddelde systeembelasting over 1 minuut |
+| `state/system_memory_percent` | geheugengebruik in % |
+| `state/system_memory_available_mb` | beschikbaar geheugen in MB |
+| `state/system_temperature_c` | processortemperatuur in °C |
+| `state/system_uptime_hours` | uptime in uur |
+| `state/system_root_storage_percent` | opslaggebruik van het systeem in % |
+| `state/system_data_storage_percent` | opslaggebruik van `/mnt/data` in % |
+| `state/system_wifi_received_mb` | ontvangen WiFi-data in MB |
+| `state/system_wifi_transmitted_mb` | verzonden WiFi-data in MB |
 
 Een los state-topic wordt alleen gepubliceerd wanneer de betreffende waarde op
-dit Toon-model beschikbaar is. Het JSON-bericht kan daarnaast interne
-statusvelden bevatten.
+dit Toon-model beschikbaar is én het leesvinkje aanstaat. Uitgeschakelde
+retained state-topics worden leeggemaakt, zodat een domoticasysteem geen oude
+waarde blijft tonen. Het JSON-bericht op `state` wordt met dezelfde keuzes
+gefilterd.
+
+De service meet volgens het ingestelde meetinterval, maar publiceert losse
+state-topics alleen wanneer hun waarde verandert. Na het ingestelde
+heartbeatinterval wordt altijd een volledige set verstuurd. Wanneer een
+basistopic, discovery-prefix, broker of integratieprofiel via de tegel wordt
+gewijzigd, ruimt de nog verbonden client eerst de oude retained state- en
+Discovery-records op.
+
+## Gebeurtenissen
+
+Niet-retained gebeurtenissen verschijnen als JSON op `event` en daarnaast op
+`event/<type>`. Voorbeelden zijn:
+
+- `mqtt_verbonden`;
+- `datapunt_beschikbaar` en `datapunt_onbeschikbaar`;
+- `bronconflict` en `bronconflict_opgelost`;
+- `energiedata_verouderd` en `energiedata_hersteld`;
+- OpenTherm-, thermostaat-, temperatuur-, geheugen-, CPU- en opslagwaarschuwingen.
+
+Een event bevat uitsluitend type, ernst, vaste melding, tijdstip en eventueel
+de stabiele technische punt-ID. Brokergegevens en MQTT-inloggegevens worden
+niet opgenomen.
 
 Optionele OpenTherm-topics omvatten
 `boiler_flow_temperature`, `boiler_return_temperature`,
@@ -65,6 +100,10 @@ Publiceer naar:
 | `set/temperature_offset` | -5 t/m 5 °C |
 
 Het resultaat verschijnt als JSON op `command_result`.
+
+Een opdracht wordt alleen uitgevoerd wanneer zowel algemene bediening als het
+schrijfvinkje van het betreffende datapunt is ingeschakeld. De zichtbare naam
+die op Toon kan worden aangepast verandert deze technische topicnamen niet.
 
 ## Energie in Toon injecteren
 
@@ -97,7 +136,13 @@ verschijnt als JSON op `inject_result`.
 
 Tellerstanden mogen niet dalen. De beveiliging kan bewust worden gereset op de
 instellingenpagina, bijvoorbeeld na vervanging van een bronmeter. Live
-verbruik en productie worden na de ingestelde timeout automatisch nul.
+verbruik en productie worden, wanneer hun injectievinkje aanstaat, na de
+ingestelde timeout automatisch nul.
+
+De hoofdschakelaar **Energie-injectie** geldt voor alle injectietopics. Met de
+vinkjes op dezelfde pagina kan ieder topic afzonderlijk worden toegestaan.
+Uitgevinkte velden in `inject/state` worden overgeslagen; hun bestaande
+Toon-waarde wordt niet gewijzigd en ook niet door de timeout op nul gezet.
 
 Praktische bronvoorbeelden en de Home Assistant-blueprint staan in
 [`ENERGY_INJECTION.md`](ENERGY_INJECTION.md).
