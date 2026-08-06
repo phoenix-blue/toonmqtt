@@ -43,7 +43,9 @@ for path in \
     drawables/ToonmqttIcon.svg \
     home-assistant/blueprints/automation/toonmqtt/zonneplan_energy_bridge.yaml \
     docs/images/toonmqtt_screenshot_1.png \
-    docs/images/toonmqtt_screenshot_2.png
+    docs/images/toonmqtt_screenshot_2.png \
+    docs/images/toonmqtt_screenshot_3.png \
+    docs/images/toonmqtt_screenshot_4.png
 do
     [ -s "$path" ] || fail "vereist bestand ontbreekt of is leeg: $path"
 done

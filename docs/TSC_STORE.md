@@ -45,7 +45,7 @@ Maak daar een pull request die:
 
 - het fragment uit [`ToonRepo-entry.xml`](../ToonRepo-entry.xml) één keer in
   `ToonRepo.xml` toevoegt;
-- `toonmqtt_screenshot_1.png` en `toonmqtt_screenshot_2.png` uit
+- `toonmqtt_screenshot_1.png` tot en met `toonmqtt_screenshot_4.png` uit
   [`images`](images) in de catalogusroot zet;
 - dezelfde `folder` (`toonmqtt`) en versie (`1.2.4`) gebruikt als de
   applicatierepository/tag.
