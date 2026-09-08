@@ -6,21 +6,51 @@ Screen {
 
     screenTitle: "Toon MQTT instellingen"
     isSaveCancelDialog: true
+    property string displayVersion: "1.2.5"
     property int selectedTab: 0
     property int selectedPointGroup: 0
     property string editorKey: ""
     property string editorTitle: ""
     property string editorValue: ""
     property bool editorPassword: false
+    property string draftHost: ""
+    property string draftPort: ""
+    property string draftUsername: ""
+    property string draftPassword: ""
+    property string draftBaseTopic: ""
+    property string draftDiscoveryPrefix: ""
+    property string draftInterval: ""
+    property string draftHeartbeat: ""
+    property string draftEnergyTimeout: ""
 
     function beginEdit(key, title, value, password) {
         editorKey = key
         editorTitle = title
         editorValue = value
         editorPassword = password === true
-        editorField.prefilledText = value
+        setFieldValue(editorField, editorValue)
         editorPage.visible = true
         openKeyboardTimer.restart()
+    }
+
+    function setFieldValue(field, value) {
+        var text = value === undefined || value === null ? "" : String(value)
+        // inputText is the value read by EditTextLabel. Keep prefilledText in
+        // sync as well for older Toon 2 firmware variants that render it.
+        field.prefilledText = text
+        field.inputText = text
+    }
+
+    function setDraftValue(key, value) {
+        if (key === "host") draftHost = value
+        else if (key === "port") draftPort = value
+        else if (key === "username") draftUsername = value
+        else if (key === "password") draftPassword = value
+        else if (key === "base_topic") draftBaseTopic = value
+        else if (key === "discovery_prefix") draftDiscoveryPrefix = value
+        else if (key === "interval_seconds") draftInterval = value
+        else if (key === "heartbeat_seconds") draftHeartbeat = value
+        else if (key === "energy_timeout_seconds") draftEnergyTimeout = value
     }
 
     function openKeyboard() {
@@ -37,24 +67,25 @@ Screen {
     }
 
     function applyEditorValue(key, value) {
+        setDraftValue(key, value)
         if (key === "host")
-            hostField.prefilledText = value
+            setFieldValue(hostField, value)
         else if (key === "port")
-            portField.prefilledText = value
+            setFieldValue(portField, value)
         else if (key === "username")
-            userField.prefilledText = value
+            setFieldValue(userField, value)
         else if (key === "password")
-            passwordField.prefilledText = value
+            setFieldValue(passwordField, value)
         else if (key === "base_topic")
-            topicField.prefilledText = value
+            setFieldValue(topicField, value)
         else if (key === "discovery_prefix")
-            discoveryPrefixField.prefilledText = value
+            setFieldValue(discoveryPrefixField, value)
         else if (key === "interval_seconds")
-            intervalField.prefilledText = value
+            setFieldValue(intervalField, value)
         else if (key === "heartbeat_seconds")
-            heartbeatField.prefilledText = value
+            setFieldValue(heartbeatField, value)
         else if (key === "energy_timeout_seconds")
-            energyTimeoutField.prefilledText = value
+            setFieldValue(energyTimeoutField, value)
         else if (key.indexOf("point:") === 0)
             setPointName(key.substring(6), value)
     }
@@ -263,44 +294,53 @@ Screen {
     }
 
     onShown: {
-        hostField.prefilledText = app.mqttHost
-        portField.prefilledText = app.mqttPort
-        userField.prefilledText = app.mqttUsername
-        passwordField.prefilledText = app.mqttPassword
-        topicField.prefilledText = app.baseTopic
+        draftHost = app.mqttHost
+        draftPort = app.mqttPort
+        draftUsername = app.mqttUsername
+        draftPassword = app.mqttPassword
+        draftBaseTopic = app.baseTopic
+        draftDiscoveryPrefix = app.discoveryPrefix
+        draftInterval = String(app.intervalSeconds)
+        draftHeartbeat = String(app.heartbeatSeconds)
+        draftEnergyTimeout = String(app.energyTimeoutSeconds)
+        setFieldValue(hostField, draftHost)
+        setFieldValue(portField, draftPort)
+        setFieldValue(userField, draftUsername)
+        setFieldValue(passwordField, draftPassword)
+        setFieldValue(topicField, draftBaseTopic)
         platformDropdown.selectValue(app.platform)
-        discoveryPrefixField.prefilledText = app.discoveryPrefix
-        intervalField.prefilledText = String(app.intervalSeconds)
-        heartbeatField.prefilledText = String(app.heartbeatSeconds)
+        setFieldValue(discoveryPrefixField, draftDiscoveryPrefix)
+        setFieldValue(intervalField, draftInterval)
+        setFieldValue(heartbeatField, draftHeartbeat)
         discoveryToggle.isSwitchedOn = app.discovery
         controlToggle.isSwitchedOn = app.controlEnabled
         energyToggle.isSwitchedOn = app.energyInjection
-        energyTimeoutField.prefilledText = String(app.energyTimeoutSeconds)
+        setFieldValue(energyTimeoutField, draftEnergyTimeout)
         loadPointSettingsTimer.restart()
         refreshPointRuntime()
     }
 
     onSaved: {
-        var topic = trimTopic(topicField.inputText)
-        var discoveryPrefix = trimTopic(discoveryPrefixField.inputText)
-        var port = parseInt(portField.inputText)
+        var topic = trimTopic(draftBaseTopic)
+        var discoveryPrefix = trimTopic(draftDiscoveryPrefix)
+        var port = parseInt(draftPort)
         if (isNaN(port) || port < 1 || port > 65535)
             port = 1883
-        var interval = parseInt(intervalField.inputText)
+        var interval = parseInt(draftInterval)
         if (isNaN(interval) || interval < 5)
             interval = 30
-        var heartbeat = parseInt(heartbeatField.inputText)
+        var heartbeat = parseInt(draftHeartbeat)
         if (isNaN(heartbeat) || heartbeat < 60)
             heartbeat = 300
-        var energyTimeout = parseInt(energyTimeoutField.inputText)
+        var energyTimeout = parseInt(draftEnergyTimeout)
         if (isNaN(energyTimeout) || energyTimeout < 30)
             energyTimeout = 180
 
         app.saveSettings({
-            host: hostField.inputText,
+            host: draftHost,
             port: String(port),
-            username: userField.inputText,
-            password: passwordField.inputText,
+            username: draftUsername,
+            password: draftPassword,
             base_topic: topic,
             platform: platformDropdown.currentValue,
             discovery_prefix: discoveryPrefix,
@@ -478,7 +518,7 @@ Screen {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: root.beginEdit("host", hostField.labelText,
-                                                  hostField.inputText, false)
+                                                  root.draftHost, false)
                     }
                 }
                 EditTextLabel {
@@ -489,7 +529,7 @@ Screen {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: root.beginEdit("port", portField.labelText,
-                                                  portField.inputText, false)
+                                                  root.draftPort, false)
                     }
                 }
                 EditTextLabel {
@@ -499,7 +539,7 @@ Screen {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: root.beginEdit("username", userField.labelText,
-                                                  userField.inputText, false)
+                                                  root.draftUsername, false)
                     }
                 }
                 EditTextLabel {
@@ -510,7 +550,7 @@ Screen {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: root.beginEdit("password", passwordField.labelText,
-                                                  passwordField.inputText, true)
+                                                  root.draftPassword, true)
                     }
                 }
                 EditTextLabel {
@@ -520,7 +560,7 @@ Screen {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: root.beginEdit("base_topic", topicField.labelText,
-                                                  topicField.inputText, false)
+                                                  root.draftBaseTopic, false)
                     }
                 }
             }
@@ -548,7 +588,7 @@ Screen {
                         anchors.fill: parent
                         onClicked: root.beginEdit("discovery_prefix",
                                                   discoveryPrefixField.labelText,
-                                                  discoveryPrefixField.inputText, false)
+                                                  root.draftDiscoveryPrefix, false)
                     }
                 }
                 EditTextLabel {
@@ -560,7 +600,7 @@ Screen {
                         anchors.fill: parent
                         onClicked: root.beginEdit("interval_seconds",
                                                   intervalField.labelText,
-                                                  intervalField.inputText, false)
+                                                  root.draftInterval, false)
                     }
                 }
                 EditTextLabel {
@@ -572,7 +612,7 @@ Screen {
                         anchors.fill: parent
                         onClicked: root.beginEdit("heartbeat_seconds",
                                                   heartbeatField.labelText,
-                                                  heartbeatField.inputText, false)
+                                                  root.draftHeartbeat, false)
                     }
                 }
 
@@ -666,7 +706,7 @@ Screen {
                         anchors.fill: parent
                         onClicked: root.beginEdit("energy_timeout_seconds",
                                                   energyTimeoutField.labelText,
-                                                  energyTimeoutField.inputText, false)
+                                                  root.draftEnergyTimeout, false)
                     }
                 }
             }
@@ -952,6 +992,17 @@ Screen {
                 color: "#a63b32"
                 font.pixelSize: qfont.metaText
             }
+        }
+
+        Text {
+            anchors {
+                horizontalCenter: parent.horizontalCenter
+                bottom: parent.bottom
+                bottomMargin: 8
+            }
+            text: "Toon MQTT \u2022 versie " + root.displayVersion
+            color: "#777777"
+            font.pixelSize: qfont.metaText
         }
     }
 

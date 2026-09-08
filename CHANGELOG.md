@@ -1,6 +1,10 @@
 # Changelog
 
-## In ontwikkeling
+## 1.2.5
+
+- Opgelost: gewijzigde broker- en integratievelden blijven op Toon 2 bewaard
+  nadat de gebruiker op Opslaan drukt.
+- Toegevoegd: het actuele versienummer staat onderaan Status en diagnose.
 
 - Toegevoegd: lees- en schrijfvinkjes per datapunt, verdeeld over tabbladen
   voor thermostaat, BXT-sensoren, ketel/OpenTherm, energie en Toon-hardware.

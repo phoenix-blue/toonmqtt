@@ -34,6 +34,11 @@ awk -v expected="$EXPECTED" '
     END { if (!found) exit 1 }
 ' daemon/main.go || fail "daemonversie wijkt af"
 
+awk -v expected="$EXPECTED" '
+    index($0, "property string displayVersion: \"" expected "\"") { found = 1 }
+    END { if (!found) exit 1 }
+' ToonmqttSettings.qml || fail "zichtbare versie in Status en diagnose wijkt af"
+
 for path in \
     ToonmqttApp.qml ToonmqttTile.qml ToonmqttSettings.qml \
     PointSettingRow.qml TabButton.qml qmldir \

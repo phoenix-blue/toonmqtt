@@ -35,7 +35,7 @@ const (
 	backupPath      = "/mnt/data/tsc/backups/toonmqtt-energy-original"
 	appPath         = "/qmf/qml/apps/toonmqtt"
 	maxMQTTPacket   = 1024 * 1024
-	version         = "1.2.4"
+	version         = "1.2.5"
 )
 
 var (

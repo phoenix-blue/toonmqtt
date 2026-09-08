@@ -1,3 +1,9 @@
+1.2.5
+- gewijzigde broker- en integratievelden blijven na Opslaan bewaard
+- versienummer toegevoegd aan Status en diagnose
+- instelbare lees- en schrijfrechten per datapunt
+- uitgebreidere diagnose, beveiliging en energie-injectie-instellingen
+
 1.2.4
 - apart invoerscherm houdt het actieve veld zichtbaar boven het toetsenbord
 - documentatie verduidelijkt dat de app uitsluitend voor Toon 2 is

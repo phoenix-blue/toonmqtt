@@ -7,7 +7,7 @@ energiegegevens en accepteert bedienings- en meterwaarden via MQTT.
 Deze app is uitsluitend bedoeld voor **Toon 2**. De vermelding `toon2only` in
 de TSC-catalogus voorkomt installatie op een Toon 1.
 
-Versie 1.2.4 is bedoeld voor installatie via de TSC Store. Na installatie
+Versie 1.2.5 is bedoeld voor installatie via de TSC Store. Na installatie
 plaatst de app zelf de achtergrondservice en opstartkoppeling; er zijn op Toon
 geen handmatige SSH-commando's nodig.
 
