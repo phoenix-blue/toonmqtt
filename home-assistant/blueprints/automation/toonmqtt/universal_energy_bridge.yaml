@@ -1,0 +1,275 @@
+blueprint:
+  name: Toon MQTT - Universele energiebrug
+  description: >-
+    Koppelt beschikbare Home Assistant-sensoren rechtstreeks aan de
+    energie-injectie van Toon MQTT. Geschikt voor cumulatieve P1-meters zoals
+    HomeWizard en DSMR. Gebruik voor dagelijks resetende verbruikswaarden de
+    afzonderlijke Zonneplan-blueprint.
+  domain: automation
+  author: Toon MQTT contributors
+  homeassistant:
+    min_version: 2025.6.0
+  input:
+    mqtt:
+      name: MQTT
+      icon: mdi:mqtt
+      input:
+        base_topic:
+          name: Toon MQTT-basistopic
+          description: Hetzelfde basistopic als op de Toon-tegel.
+          default: toon/voorbeeld
+          selector:
+            text:
+
+    live_power:
+      name: Actueel vermogen
+      icon: mdi:transmission-tower
+      input:
+        live_power_mode:
+          name: Type vermogensmeting
+          description: >-
+            Kies één gesigneerde nettovermogenssensor of twee afzonderlijke
+            sensoren voor afname en teruglevering.
+          default: signed_net
+          selector:
+            select:
+              options:
+                - label: Eén gesigneerde nettovermogenssensor
+                  value: signed_net
+                - label: Afzonderlijke afname- en terugleveringssensoren
+                  value: separate
+        net_power_sensor:
+          name: Nettovermogenssensor
+          description: >-
+            Gebruikt in de gesigneerde modus. Bij HomeWizard is een positieve
+            waarde afname en een negatieve waarde teruglevering.
+          default: []
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: power
+        positive_power_direction:
+          name: Betekenis van een positieve waarde
+          description: >-
+            HomeWizard en de meeste Nederlandse P1-integraties gebruiken
+            positief voor afname.
+          default: consumption
+          selector:
+            select:
+              options:
+                - label: Positief is afname
+                  value: consumption
+                - label: Positief is teruglevering
+                  value: production
+        consumption_power_sensor:
+          name: Afzonderlijke afnamesensor
+          description: Alleen gebruikt in de modus met afzonderlijke sensoren.
+          default: []
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: power
+        production_power_sensor:
+          name: Afzonderlijke terugleveringssensor
+          description: Alleen gebruikt in de modus met afzonderlijke sensoren.
+          default: []
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: power
+
+    cumulative_totals:
+      name: Cumulatieve tellerstanden
+      icon: mdi:counter
+      input:
+        import_low_sensor:
+          name: Elektriciteitsafname laag tarief
+          description: Cumulatieve meterstand; laat leeg wanneer niet beschikbaar.
+          default: []
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: energy
+        import_high_sensor:
+          name: Elektriciteitsafname hoog tarief
+          description: Cumulatieve meterstand; laat leeg wanneer niet beschikbaar.
+          default: []
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: energy
+        export_low_sensor:
+          name: Elektriciteitsteruglevering laag tarief
+          description: Cumulatieve meterstand; laat leeg wanneer niet beschikbaar.
+          default: []
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: energy
+        export_high_sensor:
+          name: Elektriciteitsteruglevering hoog tarief
+          description: Cumulatieve meterstand; laat leeg wanneer niet beschikbaar.
+          default: []
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: energy
+        gas_total_sensor:
+          name: Gasmeterstand
+          description: Cumulatieve meterstand; laat leeg wanneer niet beschikbaar.
+          default: []
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: gas
+
+mode: parallel
+max: 4
+max_exceeded: silent
+
+triggers:
+  - trigger: time_pattern
+    seconds: "/10"
+    id: live_power
+
+  - trigger: time_pattern
+    minutes: "/5"
+    seconds: "5"
+    id: totals
+
+  - trigger: homeassistant
+    event: start
+    id: startup
+
+variables:
+  toon_base_topic: !input base_topic
+  toon_live_power_mode: !input live_power_mode
+  toon_net_power_sensor: !input net_power_sensor
+  toon_positive_power_direction: !input positive_power_direction
+  toon_consumption_power_sensor: !input consumption_power_sensor
+  toon_production_power_sensor: !input production_power_sensor
+  toon_import_low_sensor: !input import_low_sensor
+  toon_import_high_sensor: !input import_high_sensor
+  toon_export_low_sensor: !input export_low_sensor
+  toon_export_high_sensor: !input export_high_sensor
+  toon_gas_total_sensor: !input gas_total_sensor
+
+actions:
+  - if:
+      - condition: template
+        value_template: "{{ trigger.id == 'startup' }}"
+    then:
+      - delay: "00:00:30"
+
+  - if:
+      - condition: template
+        value_template: "{{ trigger.id in ['live_power', 'startup'] }}"
+    then:
+      - variables:
+          toon_live_payload: >-
+            {% set ns = namespace(values={}) %}
+            {% if toon_live_power_mode == "signed_net"
+                  and toon_net_power_sensor
+                  and is_number(states(toon_net_power_sensor)) %}
+              {% set unit = state_attr(toon_net_power_sensor, "unit_of_measurement") or "W" %}
+              {% set factor = 1000000 if unit == "MW" else 1000 if unit == "kW" else 0.001 if unit == "mW" else 1 %}
+              {% set raw = (states(toon_net_power_sensor) | float(0)) * factor %}
+              {% if toon_positive_power_direction == "production" %}
+                {% set ns.values = dict(
+                  ns.values,
+                  power_w=([0 - raw, 0] | max) | round(0),
+                  production_w=([raw, 0] | max) | round(0)
+                ) %}
+              {% else %}
+                {% set ns.values = dict(
+                  ns.values,
+                  power_w=([raw, 0] | max) | round(0),
+                  production_w=([0 - raw, 0] | max) | round(0)
+                ) %}
+              {% endif %}
+            {% elif toon_live_power_mode == "separate" %}
+              {% if toon_consumption_power_sensor
+                    and is_number(states(toon_consumption_power_sensor)) %}
+                {% set unit = state_attr(toon_consumption_power_sensor, "unit_of_measurement") or "W" %}
+                {% set factor = 1000000 if unit == "MW" else 1000 if unit == "kW" else 0.001 if unit == "mW" else 1 %}
+                {% set value = (states(toon_consumption_power_sensor) | float(0)) * factor %}
+                {% set ns.values = dict(ns.values, power_w=([value, 0] | max) | round(0)) %}
+              {% endif %}
+              {% if toon_production_power_sensor
+                    and is_number(states(toon_production_power_sensor)) %}
+                {% set unit = state_attr(toon_production_power_sensor, "unit_of_measurement") or "W" %}
+                {% set factor = 1000000 if unit == "MW" else 1000 if unit == "kW" else 0.001 if unit == "mW" else 1 %}
+                {% set value = (states(toon_production_power_sensor) | float(0)) * factor %}
+                {% set ns.values = dict(ns.values, production_w=([value, 0] | max) | round(0)) %}
+              {% endif %}
+            {% endif %}
+            {{ ns.values | tojson }}
+
+      - if:
+          - condition: template
+            value_template: "{{ toon_live_payload | trim != '{}' }}"
+        then:
+          - action: mqtt.publish
+            data:
+              topic: "{{ toon_base_topic }}/inject/state"
+              payload: "{{ toon_live_payload }}"
+              qos: 0
+              retain: false
+
+  - if:
+      - condition: template
+        value_template: "{{ trigger.id in ['totals', 'startup'] }}"
+    then:
+      - variables:
+          toon_totals_payload: >-
+            {% set ns = namespace(values={}) %}
+            {% if toon_import_low_sensor and is_number(states(toon_import_low_sensor)) %}
+              {% set unit = state_attr(toon_import_low_sensor, "unit_of_measurement") or "kWh" %}
+              {% set factor = 0.001 if unit == "Wh" else 1000 if unit == "MWh" else 1 %}
+              {% set value = (states(toon_import_low_sensor) | float(0)) * factor %}
+              {% if value >= 0 %}{% set ns.values = dict(ns.values, import_low_kwh=value | round(3)) %}{% endif %}
+            {% endif %}
+            {% if toon_import_high_sensor and is_number(states(toon_import_high_sensor)) %}
+              {% set unit = state_attr(toon_import_high_sensor, "unit_of_measurement") or "kWh" %}
+              {% set factor = 0.001 if unit == "Wh" else 1000 if unit == "MWh" else 1 %}
+              {% set value = (states(toon_import_high_sensor) | float(0)) * factor %}
+              {% if value >= 0 %}{% set ns.values = dict(ns.values, import_high_kwh=value | round(3)) %}{% endif %}
+            {% endif %}
+            {% if toon_export_low_sensor and is_number(states(toon_export_low_sensor)) %}
+              {% set unit = state_attr(toon_export_low_sensor, "unit_of_measurement") or "kWh" %}
+              {% set factor = 0.001 if unit == "Wh" else 1000 if unit == "MWh" else 1 %}
+              {% set value = (states(toon_export_low_sensor) | float(0)) * factor %}
+              {% if value >= 0 %}{% set ns.values = dict(ns.values, export_low_kwh=value | round(3)) %}{% endif %}
+            {% endif %}
+            {% if toon_export_high_sensor and is_number(states(toon_export_high_sensor)) %}
+              {% set unit = state_attr(toon_export_high_sensor, "unit_of_measurement") or "kWh" %}
+              {% set factor = 0.001 if unit == "Wh" else 1000 if unit == "MWh" else 1 %}
+              {% set value = (states(toon_export_high_sensor) | float(0)) * factor %}
+              {% if value >= 0 %}{% set ns.values = dict(ns.values, export_high_kwh=value | round(3)) %}{% endif %}
+            {% endif %}
+            {% if toon_gas_total_sensor and is_number(states(toon_gas_total_sensor)) %}
+              {% set unit = state_attr(toon_gas_total_sensor, "unit_of_measurement") or "m³" %}
+              {% set factor = 0.028316846592 if unit in ["ft³", "ft3"] else 2.8316846592 if (unit | upper) == "CCF" else 1 %}
+              {% set value = (states(toon_gas_total_sensor) | float(0)) * factor %}
+              {% if value >= 0 %}{% set ns.values = dict(ns.values, gas_total_m3=value | round(3)) %}{% endif %}
+            {% endif %}
+            {{ ns.values | tojson }}
+
+      - if:
+          - condition: template
+            value_template: "{{ toon_totals_payload | trim != '{}' }}"
+        then:
+          - action: mqtt.publish
+            data:
+              topic: "{{ toon_base_topic }}/inject/state"
+              payload: "{{ toon_totals_payload }}"
+              qos: 0
+              retain: false

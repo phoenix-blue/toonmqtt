@@ -46,9 +46,56 @@ Wanneer de live bron langer dan de ingestelde timeout zwijgt, zet Toon MQTT
 alleen de ingeschakelde `power_w` en `production_w` op nul. Tellerstanden en
 uitgevinkte live bronnen blijven ongemoeid.
 
-## Home Assistant-blueprint
+## Home Assistant-blueprints
 
-De meegeleverde
+Voor werkelijk cumulatieve P1- en energiemeters is de
+[`Universele energiebrug`](../home-assistant/blueprints/automation/toonmqtt/universal_energy_bridge.yaml)
+beschikbaar. In de blueprint kan ieder Toon-veld afzonderlijk aan een
+beschikbare Home Assistant-sensor worden gekoppeld. Niet gekozen of tijdelijk
+onbeschikbare sensoren worden niet gepubliceerd.
+
+Voor actueel vermogen ondersteunt deze blueprint twee bronvormen:
+
+- één gesigneerde nettovermogenssensor, waarbij de betekenis van een positieve
+  waarde instelbaar is;
+- twee afzonderlijke sensoren voor afname en teruglevering.
+
+De universele blueprint publiceert actueel vermogen iedere tien seconden en
+de cumulatieve tellerstanden bij het starten van Home Assistant en iedere vijf
+minuten. Eenheden in W/kW/MW, Wh/kWh/MWh en m³/ft³/CCF worden waar nodig naar
+W, kWh en m³ omgerekend. MQTT-berichten zijn niet retained.
+
+De gekozen elektriciteits- en gassensoren moeten blijvend oplopende
+cumulatieve meterstanden zijn. Gebruik geen `vandaag`-sensor die om middernacht
+terug naar nul gaat. Wie alleen gecombineerde afname- of terugleveringstotalen
+heeft, koppelt zo'n totaal aan precies één Toon-tariefveld en laat het andere
+leeg; dezelfde gecombineerde teller aan beide tarieven koppelen zou de waarde
+dubbeltellen.
+
+### HomeWizard P1 Meter
+
+Kies bij een HomeWizard P1 Meter **Eén gesigneerde nettovermogenssensor** en
+**Positief is afname**. Koppel daarna de beschikbare cumulatieve
+elektriciteitssensoren als volgt; de precieze entity-id's verschillen per
+installatie:
+
+| HomeWizard-waarde | Toon-veld in de blueprint |
+| --- | --- |
+| Actief vermogen | Nettovermogenssensor |
+| Totale afname tarief 1 | Elektriciteitsafname laag tarief |
+| Totale afname tarief 2 | Elektriciteitsafname hoog tarief |
+| Totale teruglevering tarief 1 | Elektriciteitsteruglevering laag tarief |
+| Totale teruglevering tarief 2 | Elektriciteitsteruglevering hoog tarief |
+| Totale gasafname | Gasmeterstand |
+
+Controleer in Home Assistant welk lokaal tarief bij tarief 1 en tarief 2 hoort.
+Wanneer de P1-meter alleen een gecombineerd totaal aanbiedt, gebruik dan één
+tariefveld zoals hierboven beschreven. Gas kan leeg blijven wanneer de meter
+die waarde niet aanbiedt.
+
+### Dagelijks resetende bronnen
+
+De afzonderlijk meegeleverde
 [`Zonneplan energiebrug`](../home-assistant/blueprints/automation/toonmqtt/zonneplan_energy_bridge.yaml)
 heeft vier selecteerbare bronnen:
 
@@ -70,8 +117,7 @@ Vereisten:
 - de HA MQTT-integratie en Toon moeten dezelfde broker kunnen bereiken;
 - het ingevulde basistopic moet exact overeenkomen.
 
-Een bestaande werkelijk cumulatieve slimme-meterstand kan ook rechtstreeks
-worden gepubliceerd; gebruik dan de voorbeelden in
+Gebruik voor andere afwijkende bronnen desgewenst de losse voorbeelden in
 [`../home-assistant/automations.yaml`](../home-assistant/automations.yaml).
 
 ## Generiek MQTT-voorbeeld

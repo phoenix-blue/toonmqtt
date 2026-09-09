@@ -76,8 +76,42 @@ nul gezet.
 ## Energie vanuit Home Assistant
 
 De app ontvangt live vermogen in W en tellerstanden in kWh of m³. Voor Home
-Assistant is een instelbare blueprint meegeleverd; voor andere systemen staan
-generieke voorbeelden in
+Assistant zijn een universele sensor-naar-Toon-blueprint en een afzonderlijke
+Zonneplan-blueprint voor dagelijks resetende tellers meegeleverd. De universele
+variant ondersteunt onder meer HomeWizard P1- en DSMR-sensoren. Voor andere
+systemen staan generieke voorbeelden in
+[`docs/ENERGY_INJECTION.md`](docs/ENERGY_INJECTION.md).
+
+### Universele energieblueprint
+
+**Documentatie-update 9 september 2026:** de universele Home
+Assistant-blueprint is toegevoegd. Dit is geen wijziging aan de Toon-app en
+vereist daarom geen nieuwe installatie of update op Toon.
+
+De blueprint staat in
+[`home-assistant/blueprints/automation/toonmqtt/universal_energy_bridge.yaml`](home-assistant/blueprints/automation/toonmqtt/universal_energy_bridge.yaml)
+en is geschikt voor HomeWizard P1, DSMR en andere sensoren met cumulatieve
+elektriciteits- en gasstanden.
+
+Installeren in Home Assistant:
+
+1. Download `universal_energy_bridge.yaml` uit deze repository.
+2. Plaats het bestand in
+   `/config/blueprints/automation/toonmqtt/universal_energy_bridge.yaml`.
+3. Herlaad de automatiseringen of herstart Home Assistant.
+4. Ga naar **Instellingen > Automatiseringen & scènes > Blueprints** en maak
+   een automatisering met **Toon MQTT - Universele energiebrug**.
+5. Vul hetzelfde MQTT-basistopic in als op Toon en koppel alleen de sensoren
+   die in jouw installatie beschikbaar zijn.
+
+Gebruik voor een HomeWizard P1 Meter de optie **Eén gesigneerde
+nettovermogenssensor** met **Positief is afname**. Koppel daarna, indien
+beschikbaar, de cumulatieve afname-, terugleverings- en gasmeters. Laat een
+ontbrekend veld leeg. Koppel een gecombineerd totaal aan slechts één
+tariefveld om dubbeltelling te voorkomen.
+
+De bestaande Zonneplan-blueprint blijft beschikbaar voor sensoren die iedere
+dag naar nul terugkeren. Meer uitleg en de volledige veldkoppeling staan in
 [`docs/ENERGY_INJECTION.md`](docs/ENERGY_INJECTION.md).
 
 De belangrijkste topics zijn:
